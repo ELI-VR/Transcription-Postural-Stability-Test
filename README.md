@@ -1,5 +1,5 @@
-### NLP
-#### How to use the code:
+## NLP
+### How to use the code:
 To run the preprocessing of the audio data and transcribe each audio file to text, 
 follow these steps:
 - Install the environment using the `VR.yml` file.
@@ -7,14 +7,21 @@ follow these steps:
 Store the raw data in a folder called `data/raw_audio_data` If you decide to store the data in a different location,
 please change the path accordingly in the `application.sh`
 
-#### Audio preprocessing
+### Audio preprocessing
 The preprocessing of the audio files is done by running the script `audio_preprocessing.py`
 The script parameters are the following:
 
 - `input_dic`Path to the directory containing the raw audio data.
 - `output_dic` Path to directory to save clean audio files and csv files. (These files are created automatically)
 
-#### Transcription
+##### Output:
+- Processed audio files (along with csv files listed below) are stored in the folder `data/clean_audio_data`.
+
+- `clean_audio.csv` contains the participant's id, path to the (clean) audio files and audio's length.
+- `audio_not_processed.csv` stores files, which due to a naming convention issue, will not be transcribed. 
+These files must be checked manually. 
+
+### Transcription
 The transcription of the audio files is done by running the script `transcription.py`
 The scripts parameters are the following:
 - `input_csv` Path to csv file containing clean audio files. 

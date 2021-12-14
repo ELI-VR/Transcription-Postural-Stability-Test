@@ -111,7 +111,7 @@ class Transcription (TranscriptionModel):
         self.df_transcription.to_csv(output_csv + '/transcription.csv', index=False)
 
 
-print(f'this is teh language of transcription: {args.language}')
+print(f'this is the language of transcription: {args.language}')
 audio_to_text =Transcription(args.language)
 audio_to_text(df, args.output_csv)
 

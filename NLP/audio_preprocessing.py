@@ -8,6 +8,8 @@ import re
 
 # setting up CLI
 
+
+
 parser = argparse.ArgumentParser(description = "Preprocessing")
 parser.add_argument("input_dic", help = "path to the input directory")
 parser.add_argument("output_dic", help = "path to the output directory, where csv and clean audio files are stored")

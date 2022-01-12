@@ -5,7 +5,8 @@ import re
 import argparse
 import pandas as pd
 from pathlib import Path
-import sys
+import time
+
 
 # setting up CLI
 
@@ -16,6 +17,7 @@ parser.add_argument("-l", "--language", help="Indicate the language", default=No
 args = parser.parse_args()
 
 df = pd.read_csv(args.input_csv)
+
 
 """
 For the transcription of both English and German audio text, the following pretrained models were used:
@@ -58,6 +60,7 @@ class Transcription (TranscriptionModel):
                          'FirstPerson_1', 'FirstPerson_2', 'FirstPerson_3', 'FirstPerson_4',
                          'Blob_0', 'Blob_1', 'Blob_2', 'Blob_3', 'Blob_4',
                          'Bodiless_0', 'Bodiless_1', 'Bodiless_2', 'Bodiless_3', 'Bodiless_4'])
+        #This dictionary contains all transcriptions belonging to a single participant.
         self.new_entry = {}
         self.column_regex = re.compile(r'([A-Za-z]*)\s?\_?([0-9]$)')
         self.flag_change= True
@@ -85,9 +88,20 @@ class Transcription (TranscriptionModel):
             self.new_entry = {}
 
     def __call__(self,df, output_csv):
+        """
+
+        Args:
+            df: Dataframe contains path to the clean audio files
+            output_csv: path to save the csv with transcription
+
+
+        """
 
         for index, row in df.iterrows():
 
+            #Delays execution of the next transcription, this gives sometime to computer to empty memory
+            #waiting time in seconds
+            time.sleep(10)
 
             if self.flag_change:
                 self.participant_id = row['id']

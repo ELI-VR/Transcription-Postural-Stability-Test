@@ -1,11 +1,12 @@
 ## NLP
 ### How to use the code:
-To run the preprocessing of the audio data and transcribe each audio file to text, 
+To run the preprocessing of the audio data and transcribe each file, 
 follow these steps:
 - Install the environment using the `VR.yml` file.
-- Run the file `application.sh`. This file executes the overall pipeline.
+- In the terminal, run the file `application.sh` to executes the overall pipeline.
   - Store the raw data in a folder called `data/raw_audio_data` If you decide to store the data in a different location,
-please change the path accordingly in `application.sh`
+please pass it as an argument to `application.sh`. For example, if your data are store in `home/user/data`, run in the terminal
+`bash application.sh home/user/data`
 
 ### Audio preprocessing
 The preprocessing of the audio files is done by running the script `audio_preprocessing.py`

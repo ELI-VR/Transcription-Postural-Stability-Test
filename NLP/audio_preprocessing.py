@@ -38,7 +38,10 @@ def shorten_audio(files):
     data_dic ={
         'id':[],
         'path_clean_audio':[],
-        'length':[]
+        'sampling_rate':[],
+        'length_before_trim': [],
+        'length_after_trim':[]
+
     }
 
     for count, item in enumerate(files):
@@ -56,7 +59,10 @@ def shorten_audio(files):
             sf.write(path_trimmed, yt, sr)
             data_dic['id'].append(id_num.group())
             data_dic['path_clean_audio'].append(path_trimmed)
-            data_dic['length'].append(librosa.get_duration(yt))
+            data_dic['sampling_rate'].append(sr)
+            data_dic['length_before_trim'].append(librosa.get_duration(y))
+            data_dic['length_after_trim'].append(librosa.get_duration(yt))
+
         else:
             not_processed.append(item)
 

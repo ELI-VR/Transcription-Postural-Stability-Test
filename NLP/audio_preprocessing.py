@@ -34,7 +34,9 @@ def shorten_audio(files):
     # store audio files that are not processed either because they're empty or there's a naming convention issue.
     not_processed = {
         'path':[],
-        'issue':[]
+        'issue':[],
+        'sampling_rate':[],
+        'length':[]
     }
     # regular expression to extract ids
     id_regex = re.compile(r'^[0-9]{1,5}')
@@ -70,11 +72,15 @@ def shorten_audio(files):
 
         else:
             if empty:
-                not_processed['path'].append(item)
+
                 not_processed['issue'].append('Empty')
+
             else:
-                not_processed['path'].append(item)
+
                 not_processed['issue'].append('Naming Convention')
+            not_processed['path'].append(item)
+            not_processed['sampling_rate'].append(sr)
+            not_processed['length'].append(librosa.get_duration(y))
 
     df = pd.DataFrame.from_dict(data_dic).sort_values(by =['id'])
     #Exports information to a csv file after having sorted out by id.

@@ -19,7 +19,7 @@ The script parameters are the following:
 - Processed audio files (along with csv files listed below) are stored in the folder `data/clean_audio_data`.
 
 - `clean_audio.csv` contains the participant's id, path to the (clean) audio files and audio's length.
-- `audio_not_processed.csv` stores files, which due to a naming convention issue, will not be transcribed. 
+- `audio_not_processed.csv` stores empty files as well as files with naming conventions. 
 These files must be checked manually. 
 
 ### Transcription

@@ -5,6 +5,7 @@ import soundfile as sf
 import argparse
 import pandas as pd
 import re
+import numpy as np
 
 # setting up CLI
 
@@ -30,8 +31,11 @@ def shorten_audio(files):
     Parameters:
       files (str): Path to the raw audio files.
     """
-    # store audio files that are not processed due to wrong naming conventions.
-    not_processed = []
+    # store audio files that are not processed either because they're empty or there's a naming convention issue.
+    not_processed = {
+        'path':[],
+        'issue':[]
+    }
     # regular expression to extract ids
     id_regex = re.compile(r'^[0-9]{1,5}')
     #stores ids and paths to clean audio files
@@ -48,10 +52,11 @@ def shorten_audio(files):
         # file names
         file_name = os.path.basename(item)
         id_num = id_regex.search(file_name)
-        if id_num is not None:
+        # Load some audio
+        y, sr = librosa.load(item, sr=None)  # sr= None preserves the native sampling rate
+        empty= not np.any(y)
+        if id_num is not None and empty== False:
 
-            # Load some audio
-            y, sr = librosa.load(item)
             # Trim the beginning and ending silence
             yt, index = librosa.effects.trim(y)
             # save trimmed audio file.
@@ -64,13 +69,19 @@ def shorten_audio(files):
             data_dic['length_after_trim'].append(librosa.get_duration(yt))
 
         else:
-            not_processed.append(item)
+            if empty:
+                not_processed['path'].append(item)
+                not_processed['issue'].append('Empty')
+            else:
+                not_processed['path'].append(item)
+                not_processed['issue'].append('Naming Convention')
 
     df = pd.DataFrame.from_dict(data_dic).sort_values(by =['id'])
     #Exports information to a csv file after having sorted out by id.
     df.to_csv(args.output_dic + '/clean_audio.csv', index=False)
     #save not processed recording to a csv file
-    df_not_processed =pd.DataFrame(not_processed,columns=['path_not_processed'])
+    df_not_processed= pd.DataFrame.from_dict(not_processed)
+   
     df_not_processed.to_csv(args.output_dic + '/audio_not_processed.csv', index=False)
 
 

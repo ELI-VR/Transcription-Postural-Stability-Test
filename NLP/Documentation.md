@@ -7,7 +7,7 @@ further analysis is possible.
 <h3>Data:</h3>
 <h4>Raw data description:</h4>
 <ul>
-<li>Sampling rate: 22050</li>
+<li>Sampling rate: 44100</li>
 <li>Duration: </li>
 </ul>
  

@@ -75,7 +75,7 @@ def shorten_audio(files):
             data_dic['volume'].append(vol)
 
         else:
-            if empty:
+            if empty or vol <= 0.01:
 
                 not_processed['issue'].append('Empty')
 

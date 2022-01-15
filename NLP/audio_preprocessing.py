@@ -6,6 +6,7 @@ import argparse
 import pandas as pd
 import re
 import numpy as np
+import matplotlib.pyplot as plt
 
 # setting up CLI
 
@@ -35,8 +36,8 @@ def shorten_audio(files):
     not_processed = {
         'path':[],
         'issue':[],
-        'sampling_rate':[],
-        'length':[]
+        'duration':[],
+        'volume':[]
     }
     # regular expression to extract ids
     id_regex = re.compile(r'^[0-9]{1,5}')
@@ -44,9 +45,9 @@ def shorten_audio(files):
     data_dic ={
         'id':[],
         'path_clean_audio':[],
-        'sampling_rate':[],
-        'length_before_trim': [],
-        'length_after_trim':[]
+        'duration_before_trim': [],
+        'duration_after_trim':[],
+        'volume':[]
 
     }
 
@@ -55,10 +56,13 @@ def shorten_audio(files):
         file_name = os.path.basename(item)
         id_num = id_regex.search(file_name)
         # Load some audio
-        y, sr = librosa.load(item, sr=None)  # sr= None preserves the native sampling rate
+        y, sr = librosa.load(item)
         empty= not np.any(y)
-        if id_num is not None and empty== False:
 
+        vol=y.max()-y.min()
+        # plt.plot(y)
+        # plt.show()
+        if id_num is not None and empty== False and not vol <= 0.01:
             # Trim the beginning and ending silence
             yt, index = librosa.effects.trim(y)
             # save trimmed audio file.
@@ -66,9 +70,9 @@ def shorten_audio(files):
             sf.write(path_trimmed, yt, sr)
             data_dic['id'].append(id_num.group())
             data_dic['path_clean_audio'].append(path_trimmed)
-            data_dic['sampling_rate'].append(sr)
-            data_dic['length_before_trim'].append(librosa.get_duration(y))
-            data_dic['length_after_trim'].append(librosa.get_duration(yt))
+            data_dic['duration_before_trim'].append(librosa.get_duration(y))
+            data_dic['duration_after_trim'].append(librosa.get_duration(yt))
+            data_dic['volume'].append(vol)
 
         else:
             if empty:
@@ -79,8 +83,8 @@ def shorten_audio(files):
 
                 not_processed['issue'].append('Naming Convention')
             not_processed['path'].append(item)
-            not_processed['sampling_rate'].append(sr)
-            not_processed['length'].append(librosa.get_duration(y))
+            not_processed['duration'].append(librosa.get_duration(y))
+            not_processed['volume'].append(vol)
 
     df = pd.DataFrame.from_dict(data_dic).sort_values(by =['id'])
     #Exports information to a csv file after having sorted out by id.

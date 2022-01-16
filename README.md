@@ -15,6 +15,13 @@ The script parameters are the following:
 - `input_dic`Path to the directory containing the raw audio data.
 - `output_dic` Path to directory to save clean audio files and csv files. (These files are created automatically)
 
+### Visualization
+To generate visualizations of the data run the script `visualization.py`
+The script parameters are the following:
+- `dir_visualization` path to directory to store images/plots
+- `clean_data` Path to the clean_audio.csv
+- `not_processed` Path to audio_not_processed.csv
+
 ##### Output:
 - Processed audio files (along with csv files listed below) are stored in the folder `data/clean_audio_data`.
 

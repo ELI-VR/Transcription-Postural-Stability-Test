@@ -14,6 +14,9 @@ parser = argparse.ArgumentParser(description = "Transcription")
 parser.add_argument("input_csv", help = "path to the csv containing clean audio files")
 parser.add_argument("output_csv", help = "path to save the the csv with transcription")
 parser.add_argument("-l", "--language", help="Indicate the language", default=None)
+
+
+print("hello1")
 args = parser.parse_args()
 
 df = pd.read_csv(args.input_csv)
@@ -49,6 +52,7 @@ class TranscriptionModel():
         logits = self.model(input_values).logits
         predicted_ids = torch.argmax(logits, dim=-1)
         transcription = self.tokenizer.batch_decode(predicted_ids)[0]
+        print(transcription)
         return transcription
 
 

@@ -73,3 +73,5 @@ ENV/
 
 .idea/
 .Documentation.md
+
+data/

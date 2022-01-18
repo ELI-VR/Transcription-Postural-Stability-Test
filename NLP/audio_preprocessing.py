@@ -14,9 +14,10 @@ import matplotlib.pyplot as plt
 
 parser = argparse.ArgumentParser(description = "Preprocessing")
 parser.add_argument("input_dic", help = "path to the input directory")
-parser.add_argument("output_dic", help = "path to the output directory, where csv and clean audio files are stored")
+parser.add_argument("output_dic", help = "path to the output directory where csv and clean audio files are stored")
 args = parser.parse_args()
 
+print("hi")
 
 def extract_files(path):
 
@@ -66,6 +67,7 @@ def shorten_audio(files):
             # Trim the beginning and ending silence
             yt, index = librosa.effects.trim(y)
             # save trimmed audio file.
+            print(file_name +" done")
             path_trimmed= args.output_dic + '/' + file_name
             sf.write(path_trimmed, yt, sr)
             data_dic['id'].append(id_num.group())
@@ -97,7 +99,7 @@ def shorten_audio(files):
 
 
 
+#shorten_audio(extract_files('G:\\Python Projects\ELI-VR\data\raw_audio_data'))
+
 shorten_audio(extract_files(args.input_dic))
-
-
 

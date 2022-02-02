@@ -9,7 +9,7 @@ import time
 
 
 # setting up CLI
-
+time.sleep(5)
 parser = argparse.ArgumentParser(description = "Transcription")
 parser.add_argument("input_csv", help = "path to the csv containing clean audio files")
 parser.add_argument("output_csv", help = "path to save the the csv with transcription")

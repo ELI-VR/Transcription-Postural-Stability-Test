@@ -107,6 +107,9 @@ class Transcription (TranscriptionModel):
             #waiting time in seconds
             time.sleep(10)
 
+            if row['duration_after_trim'] > 50:
+                continue
+
             if self.flag_change:
                 self.participant_id = row['id']
                 self.flag_change = False

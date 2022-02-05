@@ -6,7 +6,6 @@ import argparse
 import pandas as pd
 import re
 import numpy as np
-import matplotlib.pyplot as plt
 
 # setting up CLI
 
@@ -55,6 +54,7 @@ def shorten_audio(files):
     for count, item in enumerate(files):
         # file names
         file_name = os.path.basename(item)
+        print(file_name)
         id_num = id_regex.search(file_name)
         # Load some audio
         y, sr = librosa.load(item)
@@ -84,9 +84,9 @@ def shorten_audio(files):
             else:
 
                 not_processed['issue'].append('Naming Convention')
-            not_processed['path'].append(item)
-            not_processed['duration'].append(librosa.get_duration(y))
-            not_processed['volume'].append(vol)
+                not_processed['path'].append(item)
+                not_processed['duration'].append(librosa.get_duration(y))
+                not_processed['volume'].append(vol)
 
     df = pd.DataFrame.from_dict(data_dic).sort_values(by =['id'])
     #Exports information to a csv file after having sorted out by id.
@@ -99,7 +99,9 @@ def shorten_audio(files):
 
 
 
-#shorten_audio(extract_files('G:\\Python Projects\ELI-VR\data\raw_audio_data'))
+shorten_audio(extract_files('G:\\Python_Projects\ELI-VR\data\\raw_audio_data'))
 
-shorten_audio(extract_files(args.input_dic))
+#shorten_audio(extract_files(args.input_dic))
 
+
+#%%

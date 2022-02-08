@@ -95,9 +95,10 @@ def shorten_audio(files):
     df_not_processed.to_csv(args.output_dic + '/audio_not_processed.csv', index=False)
 
 
-
-
 shorten_audio(extract_files(args.input_dic))
+
+
+
 
 
 

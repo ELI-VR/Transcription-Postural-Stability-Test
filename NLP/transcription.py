@@ -6,6 +6,7 @@ import argparse
 import pandas as pd
 from pathlib import Path
 import time
+from pydub import AudioSegment
 
 
 # setting up CLI
@@ -55,6 +56,7 @@ class TranscriptionModel():
 class Transcription (TranscriptionModel):
 
     def __init__(self,language):
+        #TODO delete these column names, as the column name is obtained from the path_clean_audio row from the clean_audio.csv,
         self.df_transcription = pd.DataFrame(
                 columns=['id','Hybrid_0', 'Hybrid_1', 'Hybrid_2', 'Hybrid_3', 'Hybrid_4', 'FirstPerson_0',
                          'FirstPerson_1', 'FirstPerson_2', 'FirstPerson_3', 'FirstPerson_4',
@@ -67,6 +69,23 @@ class Transcription (TranscriptionModel):
         self.participant_id =0
         self.transcription =''
         super().__init__(language)
+
+    def process_long_files(self, row, max_length =50):
+        long_audio = AudioSegment.from_wav(row['path_clea_audio'])
+        list_trasncriptions =[]
+        chunks = int(long_audio.duration_seconds / max_length)
+        starting_time =0
+        list_audio_chunks = []
+        for i in range (chunks):
+            list_audio_chunks.append(long_audio[starting_time: starting_time + max_length*1000])
+            starting_time = starting_time + max_length*1000
+        if long_audio.duration_seconds % 50 > 0:
+            list_audio_chunks.append(long_audio[starting_time:])
+
+        #do transcription for every single chunk and concatenate afterwards
+        for audio_chunk in list_audio_chunks:
+            
+
     def save_data(self,row,save_dictionary=False, save_dataframe=False):
         if save_dictionary:
             try:
@@ -99,7 +118,7 @@ class Transcription (TranscriptionModel):
 
         for index, row in df.iterrows():
 
-            #Delays execution of the next transcription, this gives sometime to computer to empty memory
+            #Delays execution of the next transcription, this gives sometime to the computer to empty memory
             #waiting time in seconds
             time.sleep(10)
 
@@ -107,9 +126,18 @@ class Transcription (TranscriptionModel):
                 self.participant_id = row['id']
                 self.flag_change = False
             if self.participant_id == row['id']:
-                #do transcription for that participant
-                self.transcription =self.transcribe(row['path_clean_audio'])
-                self.save_data(row,save_dictionary=True)
+
+                if row['duration_after_trim'] > 50:
+                    #do transcription for long files
+                    process_long_files()
+                    #save transcription
+                    self.save_data(row, save_dictionary=True)
+                else:
+
+                    #todo move do transcription block to save_data function, add a flag do_transcription = False for the case where we want just to save data frame
+                    #do transcription for that participant
+                    self.transcription =self.transcribe(row['path_clean_audio'])
+                    self.save_data(row,save_dictionary=True)
 
             else:
                 self.save_data(row, save_dataframe=True)

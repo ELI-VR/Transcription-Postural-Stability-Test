@@ -1,6 +1,7 @@
 import pickle
 import pandas as pd
 import  numpy as np
+import pathlib
 
 list_of_columns_transcription= ['id','BlobFirstperson_0', 'BlobFirstperson_1', 'BlobFirstperson_2',
        'BlobFirstperson_4', 'BlobHybrid_0', 'BlobHybrid_1', 'BlobHybrid_2',
@@ -89,9 +90,25 @@ def generate_radomized_data (path_csv_transcription):
     print('')
 
 
+#generate_radomized_data('/home/yesid/Documents/Master_semester3/VR/data/Linus_transcription/transcription.csv')
 
 
-generate_radomized_data('/home/yesid/Documents/Master_semester3/VR/data/Linus_transcription/transcription.csv')
+
+def merge_csv ():
+    """
+    Concatenates all csv files after human judges rated the transcriptions.
+    IMPORTANT! store all csv files in a separate folder. 
+    Returns:
+
+    """
+    csv_files = list(pathlib.Path('/home/yesid/Documents/Master_semester3/VR/data/Linus_transcription/transcription_split').glob('*.csv'))
+    list_data_frames = []
+    for path in csv_files:
+        list_data_frames.append(pd.read_csv(path))
+    whole_data_with_ratings = pd.concat(list_data_frames, axis=0)
+    print('')
+
+merge_csv()
 
 
 

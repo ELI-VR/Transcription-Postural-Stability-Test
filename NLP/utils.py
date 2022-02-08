@@ -1,8 +1,6 @@
 import pickle
 import pandas as pd
-
-
-df_transcription = pd.read_csv('/home/yesid/Documents/Master_semester3/VR/data/Linus_transcription/transcription.csv')
+import  numpy as np
 
 list_of_columns_transcription= ['id','BlobFirstperson_0', 'BlobFirstperson_1', 'BlobFirstperson_2',
        'BlobFirstperson_4', 'BlobHybrid_0', 'BlobHybrid_1', 'BlobHybrid_2',
@@ -36,6 +34,18 @@ condition_id ={
 }
 
 def generate_radomized_data (path_csv_transcription):
+    """
+    This function deletes the column names and shuffles the data so that human judges are left totally clueless as to what condition or to whom a
+    transcription belongs to. This has the sole purpose of avoiding any kind of bias when human judges classify a transcription as:
+    -first person
+    -third person
+    -undefined
+    Args:
+        path_csv_transcription: path to the csv file containing the transcriptions.
+
+    Returns:
+
+    """
     df = pd.read_csv(path_csv_transcription)
     df = df[list_of_columns_transcription]
 
@@ -49,7 +59,35 @@ def generate_radomized_data (path_csv_transcription):
             if type(cell_transcription) != float:
                 dict_radom_data['id_transcription'].append(str(row['id']) +'_'+ condition_id[column_name])
                 dict_radom_data['transcription'].append(cell_transcription)
-        print('')
+    #this data frame does not contain the name of the headings
+    df_no_headings = pd.DataFrame.from_dict(dict_radom_data)
+    #suffle (rows) data. This makes it more difficult for human judges to figure out to what condition or participant a transcription belongs to.
+    df_shuffled = df_no_headings.sample(frac=1).reset_index(drop=True)
+    #add a new column to the dataframe so that judges can enter their rating
+    df_shuffled['Rating'] = ""
+
+    def split_save_csv(num_chunks,path_save_csv):
+        starting_index = 0
+        chunk_size = int(df_shuffled.shape[0] / num_chunks)
+        for i in range(num_chunks):
+            df_name = 'df_' + str(i)+'.csv'
+
+            if i==num_chunks-1:
+                df_shuffled.iloc[starting_index:].to_csv(path_save_csv+df_name,index=False)
+            else:
+                df_shuffled.iloc[starting_index:starting_index+chunk_size].to_csv(path_save_csv+df_name, index=False)
+            #print(f'starting: {starting_index} end: {starting_index+chunk_size}')
+            starting_index= starting_index+chunk_size
+            #print(starting_index)
+            #l = pd.read_csv(path_save_csv+df_name)
+            #print(f'this is the size of the datafram: {l.shape[0]}')
+
+
+    #split and save to a csv file
+    split_save_csv(5,'/home/yesid/Documents/Master_semester3/VR/data/Linus_transcription/')
+
+    print('')
+
 
 
 

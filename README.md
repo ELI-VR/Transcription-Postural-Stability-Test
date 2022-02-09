@@ -27,6 +27,10 @@ The transcription of the audio files is done by running the script `transcriptio
 The scripts parameters are the following:
 - `input_csv` Path to csv file containing clean audio files. 
 - `output_csv` Path where the csv file containing the transcription is saved.
+- `output_chunks` Path where the long-file chunks will be stored.
 - `l` or `--language` Indicate the language of transcription (English or German). Please change`application.sh` accordingly.
 
 The transcriptions are stored in `data/transcription/transcription.csv`
+
+## Postural stability test
+

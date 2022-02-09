@@ -31,3 +31,6 @@ The scripts parameters are the following:
 - `l` or `--language` Indicate the language of transcription (English or German). Please change`application.sh` accordingly.
 
 The transcriptions are stored in `data/transcription/transcription.csv`
+
+## Postural stability test
+

@@ -1,8 +1,9 @@
 #!/bin/bash
 
-#create directory if not yet existing
+#create directories if not yet existing
 mkdir -p data/clean_audio_data/
 mkdir -p data/transcription/
+mkdir -p data/chunks_long_files
 #first argument is the path to the raw audio data, if not not specified, the following path is assumed: data/raw_audio_data
 
 if [ $1 ];
@@ -19,6 +20,6 @@ echo "  Preprocessing"
 python -m NLP.audio_preprocessing ${raw_path} data/clean_audio_data
 
 echo "  Transcription"
-python -m NLP.transcription data/clean_audio_data/clean_audio.csv data/transcription -l 'English'
+python -m NLP.transcription data/clean_audio_data/clean_audio.csv data/transcription data/chunks_long_files -l 'English'
 
 echo  "Code executed successfully"

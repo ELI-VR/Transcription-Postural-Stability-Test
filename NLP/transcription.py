@@ -14,6 +14,7 @@ from pydub import AudioSegment
 parser = argparse.ArgumentParser(description = "Transcription")
 parser.add_argument("input_csv", help = "path to the csv containing clean audio files")
 parser.add_argument("output_csv", help = "path to save the the csv with transcription")
+parser.add_argument("output_chunks", help = "path to the folder to store chunks per long audio file") #These files can, if needed, be checked by human judges
 parser.add_argument("-l", "--language", help="Indicate the language", default=None)
 args = parser.parse_args()
 
@@ -70,21 +71,31 @@ class Transcription (TranscriptionModel):
         self.transcription =''
         super().__init__(language)
 
-    def process_long_files(self, row, max_length =50):
-        long_audio = AudioSegment.from_wav(row['path_clea_audio'])
+    def process_long_files(self, row, output_chunks,max_length):
+        file_name = self.column_regex.search(Path(row['path_clean_audio']).stem).groups()
+        long_audio = AudioSegment.from_wav(row['path_clean_audio'])
         list_trasncriptions =[]
         chunks = int(long_audio.duration_seconds / max_length)
         starting_time =0
-        list_audio_chunks = []
         for i in range (chunks):
-            list_audio_chunks.append(long_audio[starting_time: starting_time + max_length*1000])
-            starting_time = starting_time + max_length*1000
-        if long_audio.duration_seconds % 50 > 0:
-            list_audio_chunks.append(long_audio[starting_time:])
+            audio_chunks = long_audio[starting_time: starting_time + max_length*1000]
+            #export chunk
+            path =output_chunks+'/'+ str(row['id'])+'_'+file_name[0]+'_'+file_name[1]+'_chunk_' +str(i)+'.wav'
+            audio_chunks.export(path, format="wav")
+            # do transcription
+            list_trasncriptions.append(self.transcribe(path))
 
-        #do transcription for every single chunk and concatenate afterwards
-        for audio_chunk in list_audio_chunks:
-            
+            starting_time = starting_time + max_length*1000
+        if long_audio.duration_seconds % max_length > 0:
+            audio_chunks = long_audio[starting_time:]
+            path = output_chunks + '/' + str(row['id']) + '_' + file_name[0]+'_'+file_name[1] + '_chunk_' + str(i+1) + '.wav'
+            audio_chunks.export(path, format="wav")
+            #do transcription
+            self.transcribe(path)
+            list_trasncriptions.append(self.transcribe(path))
+        #join all individual transcriptions into a single text.
+        self.transcription = ' '.join(list_trasncriptions)
+
 
     def save_data(self,row,save_dictionary=False, save_dataframe=False):
         if save_dictionary:
@@ -106,12 +117,13 @@ class Transcription (TranscriptionModel):
             # clean dictionary
             self.new_entry = {}
 
-    def __call__(self,df, output_csv):
+    def __call__(self,df, output_csv,output_chunks, max_length =50):
         """
 
         Args:
             df: Dataframe contains path to the clean audio files
             output_csv: path to save the csv with transcription
+            output_chunks: path to save audio files chunks
 
 
         """
@@ -127,23 +139,27 @@ class Transcription (TranscriptionModel):
                 self.flag_change = False
             if self.participant_id == row['id']:
 
-                if row['duration_after_trim'] > 50:
+                if row['duration_after_trim'] > max_length:
                     #do transcription for long files
-                    process_long_files()
-                    #save transcription
-                    self.save_data(row, save_dictionary=True)
+                    self.process_long_files(row, output_chunks,max_length)  #TEST HERE
+
+
                 else:
 
-                    #todo move do transcription block to save_data function, add a flag do_transcription = False for the case where we want just to save data frame
                     #do transcription for that participant
                     self.transcription =self.transcribe(row['path_clean_audio'])
-                    self.save_data(row,save_dictionary=True)
+                # save transcription
+                self.save_data(row,save_dictionary=True)
 
             else:
                 self.save_data(row, save_dataframe=True)
                 self.participant_id = row['id']
                 #do trancription
-                self.transcription = self.transcribe(row['path_clean_audio'])
+                if row['duration_after_trim'] > max_length:
+                    self.process_long_files(row, output_chunks, max_length)
+                else:
+
+                    self.transcription = self.transcribe(row['path_clean_audio'])
                 self.save_data(row, save_dictionary=True)
 
         #if the new entry_entry dictionary is not empty save the last data point.
@@ -155,5 +171,5 @@ class Transcription (TranscriptionModel):
 
 print(f'this is the language of transcription: {args.language}')
 audio_to_text =Transcription(args.language)
-audio_to_text(df, args.output_csv)
+audio_to_text(df, args.output_csv, args.output_chunks)
 

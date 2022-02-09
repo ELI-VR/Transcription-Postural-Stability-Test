@@ -1,5 +1,7 @@
 #!/bin/bash
 
+mkdir -p data/chunks_long_files
+mkdir -p data/visualizations
 #create directories if not yet existing
 mkdir -p data/clean_audio_data/
 mkdir -p data/transcription/
@@ -17,7 +19,11 @@ fi
 
 echo "  Preprocessing"
 
-python -m NLP.audio_preprocessing ${raw_path} data/clean_audio_data
+python -m NLP.audio_preprocessing ${raw_path} /home/yesid/Desktop/mock_data/clean_audio_data
+
+echo "Visualization"
+
+python -m NLP.visualization
 
 echo "  Transcription"
 python -m NLP.transcription data/clean_audio_data/clean_audio.csv data/transcription data/chunks_long_files -l 'English'

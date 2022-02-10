@@ -72,7 +72,7 @@ class Transcription (TranscriptionModel):
         super().__init__(language)
 
     def process_long_files(self, row, output_chunks,max_length):
-        file_name = self.column_regex.search(Path(row['path_clean_audio']).stem).groups()
+        file_name = self.column_regex.search(Path(row['path_clean_audio']).stem).groups
         long_audio = AudioSegment.from_wav(row['path_clean_audio'])
         list_trasncriptions =[]
         chunks = int(long_audio.duration_seconds / max_length)

@@ -111,7 +111,7 @@ def get_time_stamps (df,input_dic,output_dic):
     #df_timestamps.to_csv(output_dic + '/timestamps.csv', index=False)
     return df_timestamps
 
-def compute_velocities(df):
+def compute_velocities(df, output_dic):
     """
 
     Args:
@@ -121,10 +121,10 @@ def compute_velocities(df):
 
     """
     #todo add these as  columns to the data frame that contains the time stamp being/end
-    velocities_data={
-        'id_velocities':[],
-        'average_velocity':[]
-    }
+
+    id_velocities= []
+    average_velocity_list= []
+
 
     for index, row in df.iterrows():
         #load json with the the time stamps
@@ -132,13 +132,14 @@ def compute_velocities(df):
         #type list
         data = json.load(f)
         # using PosturalStabilityTimeFrameBegin and PosturalStabilityTimeEnd, select the time stamps within this interval
+        #time_s contains ALL timestamps, that's why we need to filter out the ones within the interval PosturalStabilityTimeFrameBegin and PosturalStabilityTimeEnd
         time_s =[]
         for i in data:
             time_s.append(i['TimeStamp'])
         #filter timestamps between PosturalStabilityTimeFrameBegin and PosturalStabilityTimeFrameEnd
         filtered = [*filter(lambda t: t > row['time_frame_begin'] and t < row['time_frame_end'] , time_s)]
         #indexes for slicing list
-        begin = time_s.index(filtered[0])
+        begin = time_s.index(filtered[0]) #in time_s (that contains all timestamps) looks for the indexes
         end = time_s.index(filtered[-1])
         #slice list
         data_slice = data[begin:end+1] # double check if this is inclusive
@@ -155,18 +156,20 @@ def compute_velocities(df):
             #compute
             x_1,y_1,z_1 = interval[0]['HMDPositionGlobal'].items() #returns a tupple, the coordinate is in the [1] position
             x_2, y_2, z_2 = interval[-1]['HMDPositionGlobal'].items()
-            distance = distance.euclidean((x_1[1],y_1[1],z_1[1]),(x_2[1],y_2[1],z_2[1]))
-            velocity = distance/time
-            list_velocity_participant.append(distance)
+            distance_interval = distance.euclidean((x_1[1],y_1[1],z_1[1]),(x_2[1],y_2[1],z_2[1]))
+            velocity = distance_interval/time
+            list_velocity_participant.append(velocity) #here finishes the processing of a single lv file. 
 
-        velocities_data['id_velocities'].append(row['id'])
+        id_velocities.append(row['id'])
         average_velocity = sum(list_velocity_participant)/len(list_velocity_participant)
-        velocities_data['average_velocity'].append(average_velocity)
+        average_velocity_list.append(average_velocity)
         f.close()
-    #add dictinary to the data frame that contains the time stamps
+    #add dictionary to the data frame that contains the time stamps
+    df['id_velocities']=id_velocities
+    df['average_velocity']= average_velocity_list
     #export results as csv
-
+    df.to_csv(output_dic + '/velocities.csv', index=False)
 
 
 df = pd.read_csv('/home/yesid/Documents/Master_semester3/VR/postural_stability_analysis/data/timestamps.csv')
-compute_velocities(df)
+compute_velocities(df,'/home/yesid/Documents/Master_semester3/VR/postural_stability_analysis/data')

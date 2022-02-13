@@ -4,7 +4,7 @@ import argparse
 import pandas as pd
 import re
 import json
-
+from scipy.spatial import distance
 
 # setting up CLI
 
@@ -12,10 +12,7 @@ import json
 #TODO add this to corresponding sh file
 #TODO use genearators to read data fron csv files
 
-parser = argparse.ArgumentParser(description = "Preprocessing")
-parser.add_argument("input_dic", help = "path to the input directory") #this directory will also contain the csv file with paths to the json files
-parser.add_argument("output_dic", help = "path to the output directory, where csv velocities is stored")
-args = parser.parse_args()
+
 
 #TODO this function is repeaed from audio_preprocessing. integrate in a dingle moudule and then export
 def extract_files(path):
@@ -25,8 +22,7 @@ def extract_files(path):
     files= [x for x in paths if x.is_file()]
     return files
 
-#extract_files('/home/yesid/Documents/Master_semester3/VR/postural_stability_analysis/data')
-def process_json_files(files):
+def process_json_files(files, output_dic):
 
     # regular expression to extract ids
     id_regex = re.compile(r'^[0-9]{1,5}')
@@ -61,13 +57,14 @@ def process_json_files(files):
 
     df = pd.DataFrame.from_dict(data_dic).sort_values(by=['id'])
     # Exports information to a csv file after having sorted out by id.
-    df.to_csv(args.output_dic + '/json_files.csv', index=False)
+    #todo uncomment this line
+    #df.to_csv(output_dic + '/json_files.csv', index=False)
     # save not processed recording to a csv file
     return  df
 
 
 
-def get_time_stamps (df):
+def get_time_stamps (df,input_dic,output_dic):
 
     dict_data ={
         'id':[],
@@ -95,7 +92,7 @@ def get_time_stamps (df):
             #path to json file containing time stamps for one station, say station 1 condition BlobFirstperson
             #TODO make sure that this path actually exists.
             file_stamp_time = '/'+participant_id+'_'+condition+'_S'+str(stationID)+'_I'+str(stationIndex)+'_lv.json'
-            path_json = Path(args.input_dic + file_stamp_time)
+            path_json = Path(input_dic + file_stamp_time)
             #check if the file exists
             if df[df['path_to_json']==path_json].empty:
                 print(f"This file {file_stamp_time} could not be found, hence could not extract time stamps. For information check out {row['path_to_json']}")
@@ -110,8 +107,66 @@ def get_time_stamps (df):
     #save dictionary to df and the to csv
     df_timestamps = pd.DataFrame.from_dict(dict_data).sort_values(by=['id'])
     # Exports information to a csv file after having sorted out by id.
-    df_timestamps.to_csv(args.output_dic + '/timestamps.csv', index=False)
+    #TODO uncomment this line
+    #df_timestamps.to_csv(output_dic + '/timestamps.csv', index=False)
+    return df_timestamps
 
-get_time_stamps(process_json_files(extract_files(args.input_dic)))
+def compute_velocities(df):
+    """
+
+    Args:
+        df: data frame with the time stamps
+
+    Returns:
+
+    """
+    #todo add these as  columns to the data frame that contains the time stamp being/end
+    velocities_data={
+        'id_velocities':[],
+        'average_velocity':[]
+    }
+
+    for index, row in df.iterrows():
+        #load json with the the time stamps
+        f = open(row['path'])
+        #type list
+        data = json.load(f)
+        # using PosturalStabilityTimeFrameBegin and PosturalStabilityTimeEnd, select the time stamps within this interval
+        time_s =[]
+        for i in data:
+            time_s.append(i['TimeStamp'])
+        #filter timestamps between PosturalStabilityTimeFrameBegin and PosturalStabilityTimeFrameEnd
+        filtered = [*filter(lambda t: t > row['time_frame_begin'] and t < row['time_frame_end'] , time_s)]
+        #indexes for slicing list
+        begin = time_s.index(filtered[0])
+        end = time_s.index(filtered[-1])
+        #slice list
+        data_slice = data[begin:end+1] # double check if this is inclusive
+        #split data_slice into intervals
+        starting =0
+        #store the velocity per participant given a single station, e.g. velocities for paticipant id 001, condition: BlobFirstPerson station 0 live data
+        list_velocity_participant =[]
+        for num_slice in range(int(len(data_slice)/10)):
+            interval = data_slice[starting:starting+10]
+            starting= starting+10
+            #todo double check that all vectors have ten dimensions.
+            #compute time
+            time= interval[-1]['TimeStamp'] - interval[0]['TimeStamp']
+            #compute
+            x_1,y_1,z_1 = interval[0]['HMDPositionGlobal'].items() #returns a tupple, the coordinate is in the [1] position
+            x_2, y_2, z_2 = interval[-1]['HMDPositionGlobal'].items()
+            distance = distance.euclidean((x_1[1],y_1[1],z_1[1]),(x_2[1],y_2[1],z_2[1]))
+            velocity = distance/time
+            list_velocity_participant.append(distance)
+
+        velocities_data['id_velocities'].append(row['id'])
+        average_velocity = sum(list_velocity_participant)/len(list_velocity_participant)
+        velocities_data['average_velocity'].append(average_velocity)
+        f.close()
+    #add dictinary to the data frame that contains the time stamps
+    #export results as csv
 
 
+
+df = pd.read_csv('/home/yesid/Documents/Master_semester3/VR/postural_stability_analysis/data/timestamps.csv')
+compute_velocities(df)

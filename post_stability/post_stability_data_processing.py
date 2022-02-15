@@ -66,10 +66,13 @@ def process_json_files(files, output_dic):
 
 def get_time_stamps (df,input_dic,output_dic):
 
+    print(f'this is the number of files to be processed: {df.shape[0]}')
     dict_data ={
         'id':[],
         'path':[],
         'condition':[],
+        'mode':[],
+        'condition_mode':[],
         'station':[],
         'time_frame_begin':[],
         'time_frame_end': []
@@ -99,7 +102,16 @@ def get_time_stamps (df,input_dic,output_dic):
             else:
                 dict_data['id'].append(participant_id)
                 dict_data['path'].append(path_json)
-                dict_data['condition'].append(condition)
+                if 'Blob' in condition:
+
+                    dict_data['condition'].append('Blob')
+                else:
+                    dict_data['condition'].append('Avatar')
+                if 'Hybrid' in condition:
+                    dict_data['mode'].append('hybrid')
+                else:
+                    dict_data['mode'].append('Firstperson')
+                dict_data['condition_mode'].append(condition)
                 dict_data['station'].append(stationID)
                 dict_data['time_frame_begin'].append(station['PosturalStabilityTimeFrameBegin'])
                 dict_data['time_frame_end'].append(station['PosturalStabilityTimeFrameEnd'])
@@ -107,11 +119,13 @@ def get_time_stamps (df,input_dic,output_dic):
     #save dictionary to df and the to csv
     df_timestamps = pd.DataFrame.from_dict(dict_data).sort_values(by=['id'])
     # Exports information to a csv file after having sorted out by id.
-    #TODO uncomment this line
-    #df_timestamps.to_csv(output_dic + '/timestamps.csv', index=False)
+
+    df_timestamps.to_csv(output_dic + '/timestamps.csv', index=False)
     return df_timestamps
 
 def compute_velocities(df, output_dic):
+
+    print(f'this is the number of files to be processed (VELOCITY0: {df.shape[0]})')
     """
 
     Args:
@@ -122,12 +136,13 @@ def compute_velocities(df, output_dic):
     """
     #todo add these as  columns to the data frame that contains the time stamp being/end
 
-    id_velocities= []
+    #id_velocities= []
     average_velocity_list= []
 
-
+    count =0
     for index, row in df.iterrows():
-        #load json with the the time stamps
+        count+=1
+        #load json with the time stamps
         f = open(row['path'])
         #type list
         data = json.load(f)
@@ -158,18 +173,20 @@ def compute_velocities(df, output_dic):
             x_2, y_2, z_2 = interval[-1]['HMDPositionGlobal'].items()
             distance_interval = distance.euclidean((x_1[1],y_1[1],z_1[1]),(x_2[1],y_2[1],z_2[1]))
             velocity = distance_interval/time
-            list_velocity_participant.append(velocity) #here finishes the processing of a single lv file. 
+            list_velocity_participant.append(velocity) #here finishes the processing of a single lv file.
 
-        id_velocities.append(row['id'])
+        #id_velocities.append(row['id'])
         average_velocity = sum(list_velocity_participant)/len(list_velocity_participant)
         average_velocity_list.append(average_velocity)
         f.close()
+        if count % 30 ==0:
+            print(f'lv.json files processed so far: {count} of {df.shape[0]}')
     #add dictionary to the data frame that contains the time stamps
-    df['id_velocities']=id_velocities
+    #df['id_velocities']=id_velocities
     df['average_velocity']= average_velocity_list
     #export results as csv
     df.to_csv(output_dic + '/velocities.csv', index=False)
+    return df
 
-
-df = pd.read_csv('/home/yesid/Documents/Master_semester3/VR/postural_stability_analysis/data/timestamps.csv')
-compute_velocities(df,'/home/yesid/Documents/Master_semester3/VR/postural_stability_analysis/data')
+# df = pd.read_csv('/home/yesid/Documents/Master_semester3/VR/postural_stability_analysis/data/timestamps.csv')
+# compute_velocities(df,'/home/yesid/Documents/Master_semester3/VR/postural_stability_analysis/data')

@@ -20,11 +20,11 @@ print('')
 
 
 
-def process_rated_transcription (path, output_dic):
+def process_rated_transcription (input_path, output_dic):
     """
 
     Args:
-        path: path to csv file that contains the rated transcriptions.
+        input_path: path to csv file that contains the rated transcriptions.
         output_dic: path to save clean_transcription.csv file
     Returns:
 
@@ -38,10 +38,10 @@ def process_rated_transcription (path, output_dic):
 
     }
     condition_id_dictionary = {y:x for x,y in condition_id.items()}
-    df = pd.read_csv(path, sep=';')
+    df = pd.read_csv(input_path, sep=';')
 
 
-    column_id = re.compile(r'([0-9]{2})_([0-9]{2})')
+    column_id = re.compile(r'([0-9]{1,2})_([0-9]{1,2})')
     for index, row in df.iterrows():
         id_condition = column_id.search(row['id_transcription']).groups()
         dic_data['id'].append(int(id_condition[0]))
@@ -56,18 +56,24 @@ def process_rated_transcription (path, output_dic):
         else:
             dic_data['mode'].append('Firstperson')
 
-        dic_data['transcription'].append(row['trascription'])
+        dic_data['transcription'].append(row['transcription'])
 
         print('')
-    df = pd.DataFrame.from_dict(dic_data).sort_values(by=['id'])
+    #df = pd.DataFrame.from_dict(dic_data).sort_values(by=['id'])
+    df = pd.DataFrame.from_dict(dic_data)
+    #df = df.set_index('id').sort_index(ascending=True)
+    #df.reset_index(inplace=True)
     # Exports information to a csv file after having sorted out by id.
-    df.to_csv(output_dic + '/clean_transcription.csv', index=False)
+    df.to_csv(output_dic + '/clean_transcription_df_8_long_files.csv', index=False)
 
 
 
 
-process_rated_transcription('/home/yesid/Documents/Master_semester3/VR/data/Linus_transcription/rated_transcription/df_0 processed.csv')
 
+output_dic= '/home/yesid/Documents/Master_semester3/VR/text_analysis_task/clean_transcription/iteration_1'
+input_path = '/home/yesid/Documents/Master_semester3/VR/text_analysis_task/rated_transcription/iteration_1/df_8_long_files_first_rating.csv'
+
+process_rated_transcription(input_path,output_dic)
 
 
 

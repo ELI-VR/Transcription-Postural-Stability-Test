@@ -108,7 +108,7 @@ def merge_csv ():
     whole_data_with_ratings = pd.concat(list_data_frames, axis=0)
     print('')
 
-merge_csv()
+#merge_csv()
 
 
 

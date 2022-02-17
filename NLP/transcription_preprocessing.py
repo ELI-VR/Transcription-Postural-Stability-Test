@@ -34,6 +34,7 @@ def process_rated_transcription (input_path, output_dic):
         'rating':[],
         'condition':[],
         'mode':[],
+        'station':[],
         'transcription':[]
 
     }
@@ -41,12 +42,14 @@ def process_rated_transcription (input_path, output_dic):
     df = pd.read_csv(input_path, sep=';')
 
 
+    regex_station = re.compile(r'[0-9]')
     column_id = re.compile(r'([0-9]{1,2})_([0-9]{1,2})')
     for index, row in df.iterrows():
         id_condition = column_id.search(row['id_transcription']).groups()
         dic_data['id'].append(int(id_condition[0]))
         dic_data['rating'].append([row['Rating']])
         condition_mode_station = condition_id_dictionary[id_condition[1]]
+        station_num = regex_station.search(condition_mode_station)[0]
         if 'Blob' in condition_mode_station:
             dic_data['condition'].append('Blob')
         else:
@@ -56,6 +59,7 @@ def process_rated_transcription (input_path, output_dic):
         else:
             dic_data['mode'].append('Firstperson')
 
+        dic_data['station'].append(regex_station.search(condition_mode_station)[0])
         dic_data['transcription'].append(row['transcription'])
 
         print('')
@@ -64,7 +68,7 @@ def process_rated_transcription (input_path, output_dic):
     #df = df.set_index('id').sort_index(ascending=True)
     #df.reset_index(inplace=True)
     # Exports information to a csv file after having sorted out by id.
-    df.to_csv(output_dic + '/clean_transcription_df_8_long_files.csv', index=False)
+    df.to_csv(output_dic + '/clean_transcription_df_8.csv', index=False)
 
 
 

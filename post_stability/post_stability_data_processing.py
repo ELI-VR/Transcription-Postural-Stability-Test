@@ -75,7 +75,11 @@ def get_time_stamps (df,input_dic,output_dic):
         'condition_mode':[],
         'station':[],
         'time_frame_begin':[],
-        'time_frame_end': []
+        'time_frame_end': [],
+        'motion_sickness_score':[],
+        'name_of_audio_data':[],
+        'motionsickness_score_rating_begin':[],
+        'motionsickness_score_rating_accepted_timeStamp':[]
     }
     #filter by .json files cotaning information about all stations of a condition.
     df_data_overview = df[df['type'] == 'data_overview']
@@ -115,6 +119,11 @@ def get_time_stamps (df,input_dic,output_dic):
                 dict_data['station'].append(stationID)
                 dict_data['time_frame_begin'].append(station['PosturalStabilityTimeFrameBegin'])
                 dict_data['time_frame_end'].append(station['PosturalStabilityTimeFrameEnd'])
+                dict_data['motion_sickness_score'].append((station['MotionsicknessScore']))
+                dict_data['name_of_audio_data'].append(station['NameOfAudioData'])
+                dict_data['motionsickness_score_rating_begin'].append(station['MotionsicknessScoreRatingBegin'])
+                dict_data['motionsickness_score_rating_accepted_timeStamp'].append(station['MotionsicknessScoreRatingAcceptedTimeStamp'])
+
         f.close()
     #save dictionary to df and the to csv
     df_timestamps = pd.DataFrame.from_dict(dict_data).sort_values(by=['id'])

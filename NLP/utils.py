@@ -34,7 +34,7 @@ condition_id ={
 
 }
 
-def generate_radomized_data (path_csv_transcription):
+def generate_radomized_data (path_csv_transcription, num_csvs_chunks):
     """
     This function deletes the column names and shuffles the data so that human judges are left totally clueless as to what condition or to whom a
     transcription belongs to. This has the sole purpose of avoiding any kind of bias when human judges classify a transcription as:
@@ -43,6 +43,7 @@ def generate_radomized_data (path_csv_transcription):
     -undefined
     Args:
         path_csv_transcription: path to the csv file containing the transcriptions.
+        num_csvs_chunks: each csv is chunked into smaller size files.
 
     Returns:
 
@@ -85,12 +86,12 @@ def generate_radomized_data (path_csv_transcription):
 
 
     #split and save to a csv file
-    split_save_csv(5,'/home/yesid/Documents/Master_semester3/VR/data/Linus_transcription/')
+    split_save_csv(num_csvs_chunks,'/home/yesid/Documents/Master_semester3/VR/data/Linus_transcription/second_round_transcription/randomized_files/')
 
     print('')
 
 
-#generate_radomized_data('/home/yesid/Documents/Master_semester3/VR/data/Linus_transcription/transcription.csv')
+generate_radomized_data('/home/yesid/Downloads/transcription_long_files.csv',2)
 
 
 
@@ -101,14 +102,17 @@ def merge_csv ():
     Returns:
 
     """
-    csv_files = list(pathlib.Path('/home/yesid/Documents/Master_semester3/VR/data/Linus_transcription/transcription_split').glob('*.csv'))
+    csv_files = list(pathlib.Path('/home/yesid/Documents/Master_semester3/VR/postural_stability_analysis/data/csvs').glob('*.csv'))
     list_data_frames = []
     for path in csv_files:
         list_data_frames.append(pd.read_csv(path))
-    whole_data_with_ratings = pd.concat(list_data_frames, axis=0)
+    whole_data = pd.concat(list_data_frames, axis=0)
+    whole_data= whole_data.set_index('id').sort_index(ascending=True)
+    whole_data.reset_index(inplace=True)
+    whole_data.to_csv('/home/yesid/Documents/Master_semester3/VR/postural_stability_analysis/data'+'/all_velocities.csv', index=False)
     print('')
 
-merge_csv()
+#merge_csv()
 
 
 

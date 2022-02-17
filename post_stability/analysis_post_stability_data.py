@@ -23,19 +23,20 @@ def check_number_files (df):
     ids = list(pd.unique(df['id']))
     for i in ids:
         num_files = df[df['id']== i].shape[0]
-        print(num_files)
-        if num_files != 12:
+
+        if num_files != 10:
 
             print(f"Participant id: {i}  has {num_files}  .json files")
 
 
 
-#check_number_files(df)
+df = pd.read_csv('/home/yesid/Documents/Master_semester3/VR/postural_stability_analysis/data/all_velocities.csv')
+check_number_files(df)
 
 #df_timestamps= get_time_stamps(df, args.input_dic, args.output_dic)
 
 #compute_velocities(df_timestamps, args.output_dic)
-df_timestamps= pd.read_csv('/home/yesid/Documents/Master_semester3/VR/postural_stability_analysis/data/25/timestamps.csv')
+df_timestamps= pd.read_csv('/home/yesid/Documents/Master_semester3/VR/postural_stability_analysis/data/75_2/timestamps.csv')
 compute_velocities(df_timestamps, args.output_dic)
 print('hi')
 

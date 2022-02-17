@@ -1,7 +1,7 @@
 import pandas as pd
 import argparse
 import re
-from NLP.utils import handle_pickle
+from NLP.utils import handle_pickle, condition_id
 from NLP.utils import list_of_columns_transcription
 # setting up CLI
 
@@ -17,6 +17,71 @@ args = parser.parse_args()
 df = pd.read_csv(args.transcription_csv)
 df = df[list_of_columns_transcription]
 print('')
+
+
+
+def process_rated_transcription (input_path, output_dic):
+    """
+
+    Args:
+        input_path: path to csv file that contains the rated transcriptions.
+        output_dic: path to save clean_transcription.csv file
+    Returns:
+
+    """
+    dic_data ={
+        'id':[],
+        'rating':[],
+        'condition':[],
+        'mode':[],
+        'station':[],
+        'transcription':[]
+
+    }
+    condition_id_dictionary = {y:x for x,y in condition_id.items()}
+    df = pd.read_csv(input_path, sep=';')
+
+
+    regex_station = re.compile(r'[0-9]')
+    column_id = re.compile(r'([0-9]{1,2})_([0-9]{1,2})')
+    for index, row in df.iterrows():
+        id_condition = column_id.search(row['id_transcription']).groups()
+        dic_data['id'].append(int(id_condition[0]))
+        dic_data['rating'].append([row['Rating']])
+        condition_mode_station = condition_id_dictionary[id_condition[1]]
+        station_num = regex_station.search(condition_mode_station)[0]
+        if 'Blob' in condition_mode_station:
+            dic_data['condition'].append('Blob')
+        else:
+            dic_data['condition'].append('Avatar')
+        if 'Hybrid' in condition_mode_station:
+            dic_data['mode'].append('Hybrid')
+        else:
+            dic_data['mode'].append('Firstperson')
+
+        dic_data['station'].append(regex_station.search(condition_mode_station)[0])
+        dic_data['transcription'].append(row['transcription'])
+
+        print('')
+    #df = pd.DataFrame.from_dict(dic_data).sort_values(by=['id'])
+    df = pd.DataFrame.from_dict(dic_data)
+    #df = df.set_index('id').sort_index(ascending=True)
+    #df.reset_index(inplace=True)
+    # Exports information to a csv file after having sorted out by id.
+    df.to_csv(output_dic + '/clean_transcription_df_8.csv', index=False)
+
+
+
+
+
+output_dic= '/home/yesid/Documents/Master_semester3/VR/text_analysis_task/clean_transcription/iteration_1'
+input_path = '/home/yesid/Documents/Master_semester3/VR/text_analysis_task/rated_transcription/iteration_1/df_8_long_files_first_rating.csv'
+
+process_rated_transcription(input_path,output_dic)
+
+
+
+
 
 def create_condition_txt(column):
     #TODO this can be implemented using map()
@@ -49,5 +114,5 @@ def create_text (df_transcription):
         text[column]=[create_condition_txt(df_transcription[column])]
 
     handle_pickle(args.output_dic,text)
-create_text(df)
+#create_text(df)
 

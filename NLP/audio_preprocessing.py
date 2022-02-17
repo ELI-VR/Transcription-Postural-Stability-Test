@@ -6,7 +6,6 @@ import argparse
 import pandas as pd
 import re
 import numpy as np
-import matplotlib.pyplot as plt
 
 # setting up CLI
 

@@ -91,7 +91,7 @@ def generate_radomized_data (path_csv_transcription, num_csvs_chunks):
     print('')
 
 
-generate_radomized_data('/home/yesid/Downloads/transcription_long_files.csv',2)
+#generate_radomized_data('/home/yesid/Downloads/transcription_long_files.csv',2)
 
 
 
@@ -102,17 +102,17 @@ def merge_csv ():
     Returns:
 
     """
-    csv_files = list(pathlib.Path('/home/yesid/Documents/Master_semester3/VR/postural_stability_analysis/data/csvs').glob('*.csv'))
+    csv_files = list(pathlib.Path('/home/yesid/Documents/Master_semester3/VR/text_analysis_task/clean_transcription/iteration_2').glob('*.csv'))
     list_data_frames = []
     for path in csv_files:
         list_data_frames.append(pd.read_csv(path))
     whole_data = pd.concat(list_data_frames, axis=0)
     whole_data= whole_data.set_index('id').sort_index(ascending=True)
     whole_data.reset_index(inplace=True)
-    whole_data.to_csv('/home/yesid/Documents/Master_semester3/VR/postural_stability_analysis/data'+'/all_velocities.csv', index=False)
+    whole_data.to_csv('/home/yesid/Documents/Master_semester3/VR/text_analysis_task/clean_transcription'+'/all_transcription_itration_2.csv', index=False)
     print('')
 
-#merge_csv()
+merge_csv()
 
 
 

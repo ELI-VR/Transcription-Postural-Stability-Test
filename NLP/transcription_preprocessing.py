@@ -74,8 +74,8 @@ def process_rated_transcription (input_path, output_dic):
 
 
 
-output_dic= '/home/yesid/Documents/Master_semester3/VR/text_analysis_task/clean_transcription/iteration_1'
-input_path = '/home/yesid/Documents/Master_semester3/VR/text_analysis_task/rated_transcription/iteration_1/df_8_long_files_first_rating.csv'
+output_dic= '/home/yesid/Documents/Master_semester3/VR/text_analysis_task/clean_transcription/iteration_2'
+input_path = '/home/yesid/Documents/Master_semester3/VR/text_analysis_task/rated_transcription/iteration_2/df_8_long_files_processed_2.csv'
 
 process_rated_transcription(input_path,output_dic)
 

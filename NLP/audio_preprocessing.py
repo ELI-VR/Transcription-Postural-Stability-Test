@@ -18,7 +18,14 @@ args = parser.parse_args()
 
 
 def extract_files(path):
+    """
+    Reads all .wav files in a folder
+    Args:
+        path: path to the input directory
 
+    Returns: a list that contains all .wav files
+
+    """
     # path to all .wav files
     paths = list(Path(path).rglob('*.wav'))
     files= [x for x in paths if x.is_file()]
@@ -59,8 +66,7 @@ def shorten_audio(files):
         empty= not np.any(y)
 
         vol=y.max()-y.min()
-        # plt.plot(y)
-        # plt.show()
+
         if id_num is not None and empty== False and not vol <= 0.01:
             # Trim the beginning and ending silence
             yt, index = librosa.effects.trim(y)

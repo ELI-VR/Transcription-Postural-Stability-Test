@@ -8,7 +8,7 @@ from NLP.utils import list_of_columns_transcription
 
 #TODO specify path to save pickle file
 
-parser = argparse.ArgumentParser(description = "Text analysis")
+parser = argparse.ArgumentParser(description = "Transcription processing")
 parser.add_argument("transcription_csv", help = "path to the csv file containing the transcriptions")
 parser.add_argument("output_dic", help = "path to the output directory")
 args = parser.parse_args()
@@ -16,13 +16,14 @@ args = parser.parse_args()
 
 df = pd.read_csv(args.transcription_csv)
 df = df[list_of_columns_transcription]
-print('')
+
 
 
 
 def process_rated_transcription (input_path, output_dic):
     """
-
+    Takes anonymized transcriptions, after they have been rated by annotators, and save them to a csv file
+    along with their corresponding id, condition, mode and station.
     Args:
         input_path: path to csv file that contains the rated transcriptions.
         output_dic: path to save clean_transcription.csv file
@@ -62,11 +63,9 @@ def process_rated_transcription (input_path, output_dic):
         dic_data['station'].append(regex_station.search(condition_mode_station)[0])
         dic_data['transcription'].append(row['transcription'])
 
-        print('')
-    #df = pd.DataFrame.from_dict(dic_data).sort_values(by=['id'])
+
     df = pd.DataFrame.from_dict(dic_data)
-    #df = df.set_index('id').sort_index(ascending=True)
-    #df.reset_index(inplace=True)
+
     # Exports information to a csv file after having sorted out by id.
     df.to_csv(output_dic + '/clean_transcription_df_8.csv', index=False)
 

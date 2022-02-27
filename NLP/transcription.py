@@ -22,13 +22,16 @@ df = pd.read_csv(args.input_csv)
 
 
 """
-For the transcription of both English and German audio text, the following pretrained models were used:
+For the transcription of both English and German audio text, the following pretrained/tuned models were used:
 https://huggingface.co/facebook/wav2vec2-large-robust-ft-libri-960h
 https://huggingface.co/marcel/wav2vec2-large-xlsr-53-german
 The code provided by the sources above was adapted according to the needs of this project. 
 """
 
 class TranscriptionModel():
+    """
+    Loads a transcription model
+    """
     def __init__(self,language):
         self.language = language
         if self.language == 'English':
@@ -42,8 +45,9 @@ class TranscriptionModel():
     def transcribe(self, file_name):
         """
         Transcribes audio to text
-        :param file_name: Path to a single audio file.
-        :return: String containing the transcription.
+        Args:
+            file_name: Path to a single audio file.
+        return: String containing the transcription.
         """
         input_audio, sampling_rate = librosa.load(file_name, sr=16000)
         input_values = self.tokenizer(input_audio, return_tensors="pt", padding="longest",
@@ -55,15 +59,16 @@ class TranscriptionModel():
 
 
 class Transcription (TranscriptionModel):
-
+    """
+    Loads a transcription model and does transcription for every single audio file contained in clean_audio.csv
+    """
     def __init__(self,language):
-        #TODO delete these column names, as the column name is obtained from the path_clean_audio row from the clean_audio.csv,
         self.df_transcription = pd.DataFrame(
                 columns=['id','Hybrid_0', 'Hybrid_1', 'Hybrid_2', 'Hybrid_3', 'Hybrid_4', 'FirstPerson_0',
                          'FirstPerson_1', 'FirstPerson_2', 'FirstPerson_3', 'FirstPerson_4',
                          'Blob_0', 'Blob_1', 'Blob_2', 'Blob_3', 'Blob_4',
                          'Bodiless_0', 'Bodiless_1', 'Bodiless_2', 'Bodiless_3', 'Bodiless_4'])
-        #This dictionary contains all transcriptions belonging to a single participant.
+        #This dictionary contains transcriptions for a single participant.
         self.new_entry = {}
         self.column_regex = re.compile(r'([A-Za-z]*)\s?\_?([0-9]$)')
         self.flag_change= True
@@ -72,9 +77,16 @@ class Transcription (TranscriptionModel):
         super().__init__(language)
 
     def process_long_files(self, row, output_chunks,max_length):
+        """
+        Chunks audio file into smaller portions.
+        Args:
+            row: row that contains the long audio file.
+            output_chunks: path to the folder to store chunks per long audio file
+            max_length: The maximum file length one can transcribe given one's computational resources.
+        """
         file_name = self.column_regex.search(Path(row['path_clean_audio']).stem).groups
         long_audio = AudioSegment.from_wav(row['path_clean_audio'])
-        list_trasncriptions =[]
+        list_transcriptions =[]
         chunks = int(long_audio.duration_seconds / max_length)
         starting_time =0
         for i in range (chunks):
@@ -83,7 +95,7 @@ class Transcription (TranscriptionModel):
             path =output_chunks+'/'+ str(row['id'])+'_'+file_name[0]+'_'+file_name[1]+'_chunk_' +str(i)+'.wav'
             audio_chunks.export(path, format="wav")
             # do transcription
-            list_trasncriptions.append(self.transcribe(path))
+            list_transcriptions.append(self.transcribe(path))
 
             starting_time = starting_time + max_length*1000
         if long_audio.duration_seconds % max_length > 0:
@@ -92,12 +104,21 @@ class Transcription (TranscriptionModel):
             audio_chunks.export(path, format="wav")
             #do transcription
             self.transcribe(path)
-            list_trasncriptions.append(self.transcribe(path))
+            list_transcriptions.append(self.transcribe(path))
         #join all individual transcriptions into a single text.
-        self.transcription = ' '.join(list_trasncriptions)
+        self.transcription = ' '.join(list_transcriptions)
 
 
     def save_data(self,row,save_dictionary=False, save_dataframe=False):
+        """
+        Initially saves a participant's data to a dictionary, and once it has finished processing data for a single participant
+        it stores it to a dataframe
+        Args:
+            row: information about a single audio file.
+            save_dictionary: saves data per id
+            save_dataframe: contains transcriptions for all participants/id
+
+        """
         if save_dictionary:
             try:
                 # get the column name

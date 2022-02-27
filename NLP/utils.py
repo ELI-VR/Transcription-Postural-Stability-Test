@@ -1,6 +1,5 @@
 import pickle
 import pandas as pd
-import  numpy as np
 import pathlib
 
 list_of_columns_transcription= ['id','BlobFirstperson_0', 'BlobFirstperson_1', 'BlobFirstperson_2',
@@ -34,16 +33,14 @@ condition_id ={
 
 }
 
-def generate_radomized_data (path_csv_transcription, num_csvs_chunks):
+def generate_radomized_data (path_csv_transcription, num_csvs_chunks,path_save_csv_anonymized):
     """
-    This function deletes the column names and shuffles the data so that human judges are left totally clueless as to what condition or to whom a
-    transcription belongs to. This has the sole purpose of avoiding any kind of bias when human judges classify a transcription as:
-    -first person
-    -third person
-    -undefined
+    This function deletes the column names and shuffles the data so that human judges are left totally clueless as to
+    what condition or to whom a transcription belongs to. This has the sole purpose of avoiding any kind of bias when
+    human judges classify a transcription as: -first person -third person -undefined
     Args:
-        path_csv_transcription: path to the csv file containing the transcriptions.
-        num_csvs_chunks: each csv is chunked into smaller size files.
+    path_csv_transcription: path to the csv file containing the transcriptions. num_csvs_chunks: each csv is chunked into smaller size files.
+    path_save_csv_anonymized: path to a folder to save csv files containing the shuffled chunks ready to be rated by annotators.
 
     Returns:
 
@@ -61,58 +58,49 @@ def generate_radomized_data (path_csv_transcription, num_csvs_chunks):
             if type(cell_transcription) != float:
                 dict_radom_data['id_transcription'].append(str(row['id']) +'_'+ condition_id[column_name])
                 dict_radom_data['transcription'].append(cell_transcription)
-    #this data frame does not contain the name of the headings
+    #this data frame does not contain the heading names
     df_no_headings = pd.DataFrame.from_dict(dict_radom_data)
     #suffle (rows) data. This makes it more difficult for human judges to figure out to what condition or participant a transcription belongs to.
     df_shuffled = df_no_headings.sample(frac=1).reset_index(drop=True)
     #add a new column to the dataframe so that judges can enter their rating
     df_shuffled['Rating'] = ""
 
-    def split_save_csv(num_chunks,path_save_csv):
+    def split_save_csv(num_chunks, path_save_csv_anonymized):
         starting_index = 0
         chunk_size = int(df_shuffled.shape[0] / num_chunks)
         for i in range(num_chunks):
             df_name = 'df_' + str(i)+'.csv'
 
             if i==num_chunks-1:
-                df_shuffled.iloc[starting_index:].to_csv(path_save_csv+df_name,index=False)
+                df_shuffled.iloc[starting_index:].to_csv(path_save_csv_anonymized + df_name, index=False)
             else:
-                df_shuffled.iloc[starting_index:starting_index+chunk_size].to_csv(path_save_csv+df_name, index=False)
-            #print(f'starting: {starting_index} end: {starting_index+chunk_size}')
+                df_shuffled.iloc[starting_index:starting_index+chunk_size].to_csv(path_save_csv_anonymized + df_name, index=False)
             starting_index= starting_index+chunk_size
-            #print(starting_index)
-            #l = pd.read_csv(path_save_csv+df_name)
-            #print(f'this is the size of the datafram: {l.shape[0]}')
-
 
     #split and save to a csv file
-    split_save_csv(num_csvs_chunks,'/home/yesid/Documents/Master_semester3/VR/data/Linus_transcription/second_round_transcription/randomized_files/')
-
-    print('')
-
-
-generate_radomized_data('/home/yesid/Downloads/transcription_long_files.csv',2)
+    split_save_csv(num_csvs_chunks,path_save_csv_anonymized)
 
 
 
-def merge_csv ():
+def merge_csv (input_dir_csv, output_concat):
     """
-    Concatenates all csv files after human judges rated the transcriptions.
-    IMPORTANT! store all csv files in a separate folder. 
+    Concatenates all csv files in a folder.
+    IMPORTANT! store all csv files in a separate folder.
+    Args:
+        input_dir_csv: path to the directory containing a set of cvs files.
+        output_concat: path to store resulting csv file. Include the csv file name e.g. /concatenated_csvs.csv
     Returns:
 
     """
-    csv_files = list(pathlib.Path('/home/yesid/Documents/Master_semester3/VR/postural_stability_analysis/data/csvs').glob('*.csv'))
+    csv_files = list(pathlib.Path(input_dir_csv).glob('*.csv'))
     list_data_frames = []
     for path in csv_files:
         list_data_frames.append(pd.read_csv(path))
     whole_data = pd.concat(list_data_frames, axis=0)
     whole_data= whole_data.set_index('id').sort_index(ascending=True)
     whole_data.reset_index(inplace=True)
-    whole_data.to_csv('/home/yesid/Documents/Master_semester3/VR/postural_stability_analysis/data'+'/all_velocities.csv', index=False)
-    print('')
+    whole_data.to_csv(output_concat, index=False)
 
-#merge_csv()
 
 
 

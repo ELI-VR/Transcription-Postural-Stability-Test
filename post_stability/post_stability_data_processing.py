@@ -10,24 +10,38 @@ from scipy.spatial import distance
 
 
 #TODO add this to corresponding sh file
-#TODO use genearators to read data fron csv files
+parser = argparse.ArgumentParser(description = "Postural Stability")
+parser.add_argument("input_dir", help = "Path to the input directory")
+parser.add_argument("output_dir", help = "Path to the output directory where timestamps.csv and velocities.csv will be saved")
+args = parser.parse_args()
 
 
-
-#TODO this function is repeaed from audio_preprocessing. integrate in a dingle moudule and then export
 def extract_files(path):
+    """
+    Create a list that contains all .json files stored in a given folder.
+    Args:
+        path: path to the directory that contains .json files
 
-    # path to all .json files
+    Returns: list that contains .json file stored in given directory.
+
+    """
     paths = list(Path(path).rglob('*.json'))
     files= [x for x in paths if x.is_file()]
     return files
 
-def process_json_files(files, output_dic):
+def process_json_files(files):
 
+    """
+    Orders .json files by id, and assigns to each of them a path and type.
+    Args:
+        files: List of .json files.
+
+    Returns:
+
+    """
     # regular expression to extract ids
     id_regex = re.compile(r'^[0-9]{1,5}')
     #regular expression to extract the name of the condition
-    #condition_regex = re.compile(r'([A-Za-z]*)\s?\_?([0-9]*$)')
     condition_regex = re.compile(r'[^_0-9]*[a-z]')
     # stores ids and paths to clean audio files
     data_dic = {
@@ -45,7 +59,6 @@ def process_json_files(files, output_dic):
         # Load some audio
         data_dic['id'].append(id_num.group())
         data_dic['path_to_json'].append(item)
-        #condition_name = condition_regex.search(item.stem).groups()
         condition_name = condition_regex.search(item.stem)
         if 'lv' in file_name:
 
@@ -56,11 +69,14 @@ def process_json_files(files, output_dic):
 
 
     df = pd.DataFrame.from_dict(data_dic).sort_values(by=['id'])
-    # Exports information to a csv file after having sorted out by id.
-    #todo uncomment this line
-    #df.to_csv(output_dic + '/json_files.csv', index=False)
-    # save not processed recording to a csv file
+
     return  df
+
+
+
+
+df_process = process_json_files(extract_files(args.input_dir))
+
 
 
 
@@ -132,20 +148,23 @@ def get_time_stamps (df,input_dic,output_dic):
     df_timestamps.to_csv(output_dic + '/timestamps.csv', index=False)
     return df_timestamps
 
+
+
+df_timestamps= get_time_stamps(df_process,args.input_dir,args.output_dir)
+
+
+
+
 def compute_velocities(df, output_dic):
-
-    print(f'this is the number of files to be processed (VELOCITY0: {df.shape[0]})')
     """
-
+    Compute the velocity given PosturalStabilityTimeFrameBegin and PosturalStabilityTimeFrameEnd
     Args:
         df: data frame with the time stamps
-
+        output_dic: Path to the output directory where velocities.csv is saved.
     Returns:
 
     """
-    #todo add these as  columns to the data frame that contains the time stamp being/end
 
-    #id_velocities= []
     average_velocity_list= []
 
     count =0
@@ -174,7 +193,6 @@ def compute_velocities(df, output_dic):
         for num_slice in range(int(len(data_slice)/10)):
             interval = data_slice[starting:starting+10]
             starting= starting+10
-            #todo double check that all vectors have ten dimensions.
             #compute time
             time= interval[-1]['TimeStamp'] - interval[0]['TimeStamp']
             #compute
@@ -184,18 +202,17 @@ def compute_velocities(df, output_dic):
             velocity = distance_interval/time
             list_velocity_participant.append(velocity) #here finishes the processing of a single lv file.
 
-        #id_velocities.append(row['id'])
         average_velocity = sum(list_velocity_participant)/len(list_velocity_participant)
         average_velocity_list.append(average_velocity)
         f.close()
         if count % 30 ==0:
             print(f'lv.json files processed so far: {count} of {df.shape[0]}')
-    #add dictionary to the data frame that contains the time stamps
-    #df['id_velocities']=id_velocities
     df['average_velocity']= average_velocity_list
     #export results as csv
     df.to_csv(output_dic + '/velocities.csv', index=False)
-    return df
 
-# df = pd.read_csv('/home/yesid/Documents/Master_semester3/VR/postural_stability_analysis/data/timestamps.csv')
-# compute_velocities(df,'/home/yesid/Documents/Master_semester3/VR/postural_stability_analysis/data')
+
+
+
+compute_velocities(df_timestamps,args.output_dir)
+

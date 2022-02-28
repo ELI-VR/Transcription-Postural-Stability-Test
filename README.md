@@ -1,5 +1,7 @@
+# How to use the code:
+
 ## NLP
-### How to use the code:
+
 To run the preprocessing of the audio data and transcribe each file, 
 follow these steps:
 - Install the environment using the `VR.yml` file.
@@ -54,4 +56,12 @@ Example (For Linux users) `python -m NLP.transcription_preprocessing --path_anon
 
 
 ## Postural stability test
+To run all the steps needed to compute the average velocities run `post_stability.sh`. Pass the path to
+the data as a parameter. E.g., `bash post_stability.sh home/user/data`
+
+### Live data preprocessing.
+The preprocessing of the live data is done by running the script `post_stability_dataprocessing.py`
+The script parameters are the following:
+- `input_dir` Path to the input directory that contains the data. 
+- `output_dir` Path to the output directory where timestamps.csv and velocities.csv will be saved
 

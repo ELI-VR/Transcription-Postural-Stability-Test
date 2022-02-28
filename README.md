@@ -3,10 +3,10 @@
 To run the preprocessing of the audio data and transcribe each file, 
 follow these steps:
 - Install the environment using the `VR.yml` file.
-- In the terminal, run the file `application.sh` to executes the overall pipeline.
+- In the terminal, run the file `audio.sh` to executes the overall pipeline.
   - Store the raw data in a folder called `data/raw_audio_data` If you decide to store the data in a different location,
-please pass it as an argument to `application.sh`. For example, if your data are store in `home/user/data`, run in the terminal
-`bash application.sh home/user/data`
+please pass it as an argument to `audio.sh`. For example, if your data are store in `home/user/data`, run in the terminal
+`bash audio.sh home/user/data`
 
 ### Audio preprocessing
 The preprocessing of the audio files is done by running the script `audio_preprocessing.py`
@@ -35,9 +35,11 @@ The scripts parameters are the following:
 - `input_csv` Path to csv file containing clean audio files. 
 - `output_csv` Path where the csv file containing the transcription is saved.
 - `output_chunks` Path where the long-file chunks will be stored.
-- `l` or `--language` Indicate the language of transcription (English or German). Please change`application.sh` accordingly.
+- `l` or `--language` Indicate the language of transcription (English or German). Please change`audio.sh` accordingly.
 
 The transcriptions are stored in `data/transcription/transcription.csv`
+
+#### Processing transcription
 
 ## Postural stability test
 

@@ -33,54 +33,6 @@ condition_id ={
 
 }
 
-def generate_radomized_data (path_csv_transcription, num_csvs_chunks,path_save_csv_anonymized):
-    """
-    This function deletes the column names and shuffles the data so that human judges are left totally clueless as to
-    what condition or to whom a transcription belongs to. This has the sole purpose of avoiding any kind of bias when
-    human judges classify a transcription as: -first person -third person -undefined
-    Args:
-    path_csv_transcription: path to the csv file containing the transcriptions. num_csvs_chunks: each csv is chunked into smaller size files.
-    path_save_csv_anonymized: path to a folder to save csv files containing the shuffled chunks ready to be rated by annotators.
-
-    Returns:
-
-    """
-    df = pd.read_csv(path_csv_transcription)
-    df = df[list_of_columns_transcription]
-
-    dict_radom_data = {
-        'id_transcription': [], #the first number corresponds to the participant's id and the second one after the _, is the condition id
-        'transcription': []
-    }
-    for index, row in df.iterrows():
-        for column_name in list_of_columns_transcription[1:-1]:
-            cell_transcription = row[column_name]
-            if type(cell_transcription) != float:
-                dict_radom_data['id_transcription'].append(str(row['id']) +'_'+ condition_id[column_name])
-                dict_radom_data['transcription'].append(cell_transcription)
-    #this data frame does not contain the heading names
-    df_no_headings = pd.DataFrame.from_dict(dict_radom_data)
-    #suffle (rows) data. This makes it more difficult for human judges to figure out to what condition or participant a transcription belongs to.
-    df_shuffled = df_no_headings.sample(frac=1).reset_index(drop=True)
-    #add a new column to the dataframe so that judges can enter their rating
-    df_shuffled['Rating'] = ""
-
-    def split_save_csv(num_chunks, path_save_csv_anonymized):
-        starting_index = 0
-        chunk_size = int(df_shuffled.shape[0] / num_chunks)
-        for i in range(num_chunks):
-            df_name = 'df_' + str(i)+'.csv'
-
-            if i==num_chunks-1:
-                df_shuffled.iloc[starting_index:].to_csv(path_save_csv_anonymized + df_name, index=False)
-            else:
-                df_shuffled.iloc[starting_index:starting_index+chunk_size].to_csv(path_save_csv_anonymized + df_name, index=False)
-            starting_index= starting_index+chunk_size
-
-    #split and save to a csv file
-    split_save_csv(num_csvs_chunks,path_save_csv_anonymized)
-
-
 
 def merge_csv (input_dir_csv, output_concat):
     """

@@ -9,10 +9,10 @@ from NLP.utils import list_of_columns_transcription
 
 
 parser = argparse.ArgumentParser(description = "Transcription processing")
-parser.add_argument("--transcription", help = "path to the csv file containing the transcriptions to be anonymized", default=None)
-parser.add_argument("--num_csvs_chunks", help = "number of chunks", default=None)
-parser.add_argument("--path_rated_transcription", help = "path to the csv file containing the anonymized transcriptions along with their ratings", default=None)
-parser.add_argument("--output_dir", help = "path to the output directory")
+parser.add_argument("--transcription", help = "Path to the csv file containing the transcriptions to be anonymized", default=None)
+parser.add_argument("--num_csvs_chunks", help = "Number of chunks", default=None)
+parser.add_argument("--path_rated_transcription", help = "Path to the csv file that contains the anonymized transcriptions along with their ratings", default=None)
+parser.add_argument("--output_dir", help = "Path to the output directory")
 args = parser.parse_args()
 
 

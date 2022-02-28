@@ -38,8 +38,20 @@ The scripts parameters are the following:
 - `l` or `--language` Indicate the language of transcription (English or German). Please change`audio.sh` accordingly.
 
 The transcriptions are stored in `data/transcription/transcription.csv`
+ 
+<h4>Processing transcription</h4>
+To shuffle the transcriptions and make them anonymous, run `transcription_preprocessing.py` with the following parameters:
+- `transcription` Path to the csv file containing the transcriptions to be anonymized.
+- `num_csvs_chunks` Number of chunks. E.g., if you have 10 annotators you may want to chunk the transcriptions into 10 portions. 
+- `output_dir` Path to the output directory where the resulting data will be saved. 
 
-#### Processing transcription
+In order prepare the data (transcriptions along with the ratings given by the annotators) for the analysis, run `transcription_preprocessing.py`
+with the following parameters:
+- `path_rated_transcription` Path to the csv file that contains the anonymized transcriptions along with their ratings.
+- `output_dir` Path to the output directory where the resulting data will be saved.
+
+Example (For Linux users) `python -m NLP.transcription_preprocessing --path_anonymized_transcription /path/to/annotations/csv_file.csv --output_dir /path/to/store/results`
+
 
 ## Postural stability test
 

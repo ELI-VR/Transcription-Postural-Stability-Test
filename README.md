@@ -17,12 +17,6 @@ The script parameters are the following:
 - `input_dic`Path to the directory containing the raw audio data.
 - `output_dic` Path to directory to save clean audio files and csv files. (These files are created automatically)
 
-### Visualization
-To generate visualizations of the data run the script `visualization.py`
-The script parameters are the following:
-- `dir_visualization` path to directory to store images/plots
-- `clean_data` Path to the clean_audio.csv
-- `not_processed` Path to audio_not_processed.csv
 
 ##### Output:
 - Processed audio files (along with csv files listed below) are stored in the folder `data/clean_audio_data`.
@@ -56,11 +50,14 @@ Example (For Linux users) `python -m NLP.transcription_preprocessing --path_anon
 
 
 ## Postural stability test
-To run all the steps needed to compute the average velocities run `post_stability.sh`. Pass the path to
+To run **all** the steps needed to compute the average velocity run `post_stability.sh`. Pass the path to
 the data as a parameter. E.g., `bash post_stability.sh home/user/data`
+After running the `post_stability.sh` two files are generated: timestamps.csv and velocities.csv. You can fine 
+them here: `data/post_stability`. If you want to save the resulting csv files to a different 
+directory, please follow the steps below. 
 
 ### Live data preprocessing.
-The preprocessing of the live data is done by running the script `post_stability_dataprocessing.py`
+The preprocessing of the data, which required to compute the average velocity, is done by running the script `post_stability_dataprocessing.py`
 The script parameters are the following:
 - `input_dir` Path to the input directory that contains the data. 
 - `output_dir` Path to the output directory where timestamps.csv and velocities.csv will be saved

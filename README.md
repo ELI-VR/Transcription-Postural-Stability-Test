@@ -1,5 +1,5 @@
 # How to use the code:
-
+#### Note: The latest version of the code can be found under the branch Master. 
 ## NLP
 
 To run the preprocessing of the audio data and transcribe each file, 

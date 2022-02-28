@@ -1,7 +1,6 @@
 #!/bin/bash
 
 mkdir -p data/chunks_long_files
-mkdir -p data/visualizations
 #create directories if not yet existing
 mkdir -p data/clean_audio_data/
 mkdir -p data/transcription/

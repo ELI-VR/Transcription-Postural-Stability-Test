@@ -112,7 +112,6 @@ def get_time_stamps (df,input_dic,output_dic):
             #fetch json file
 
             #path to json file containing time stamps for one station, say station 1 condition BlobFirstperson
-            #TODO make sure that this path actually exists.
             file_stamp_time = '/'+participant_id+'_'+condition+'_S'+str(stationID)+'_I'+str(stationIndex)+'_lv.json'
             path_json = Path(input_dic + file_stamp_time)
             #check if the file exists
@@ -204,8 +203,6 @@ def compute_velocities(df, output_dic):
         average_velocity = sum(list_velocity_participant)/len(list_velocity_participant)
         average_velocity_list.append(average_velocity)
         f.close()
-        if count % 30 ==0:
-            print(f'lv.json files processed so far: {count} of {df.shape[0]}')
     df['average_velocity']= average_velocity_list
     #export results as csv
     df.to_csv(output_dic + '/velocities.csv', index=False)

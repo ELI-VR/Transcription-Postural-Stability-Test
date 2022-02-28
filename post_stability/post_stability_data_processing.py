@@ -8,12 +8,11 @@ from scipy.spatial import distance
 
 # setting up CLI
 
-
-#TODO add this to corresponding sh file
 parser = argparse.ArgumentParser(description = "Postural Stability")
 parser.add_argument("input_dir", help = "Path to the input directory")
 parser.add_argument("output_dir", help = "Path to the output directory where timestamps.csv and velocities.csv will be saved")
 args = parser.parse_args()
+
 
 
 def extract_files(path):
